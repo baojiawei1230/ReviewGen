@@ -1,0 +1,36 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript" src="/ReviewGen/js/jquery-1.7.2.min.js"></script>
+    <title>ReviewId Generator</title>
+    <link rel="shortcut icon" type="image/x-icon" href="http://www.lvmama.com/favicon.ico"/>
+</head>
+<body>
+<div align="center">
+    <form id="reviewId" action="/ReviewGen/review/generateID" style="align-self: center">
+        <h1> ReviewID 生成器 </h1><br/>
+        <span style="font-size: 10px;color: red">author : alex.bao</span><br/><br/>
+        <input type="button" name="button" value="Generate"/><br/><br/>
+        ReviewID : <input type="input" id="result" name="result" value=""/>
+    </form>
+</div>
+</body>
+
+<script type="text/javascript">
+    //提交表单.
+    $("input[name=button]").click(function(){
+       var action = $(this).parent().attr("action");
+       $.ajax({
+           type:'POST',
+           url:action,
+           dataType:'json',
+           success : function(data){
+               $("#result").val(data.result);
+           },
+           error : function(){
+               alert("系统异常请稍后再试 !!");
+           }
+       })
+    });
+</script>
+</html>
