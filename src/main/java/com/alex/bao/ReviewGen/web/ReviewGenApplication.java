@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ReviewId生成器
@@ -34,7 +36,16 @@ public class ReviewGenApplication{
 	@RequestMapping("/generateID")
 	public void generateID(HttpServletRequest request, HttpServletResponse response){
 		try {
-			Process p = Runtime.getRuntime().exec("python I://python/auto_rb.py");
+			String[] command;
+			String osName = System.getProperty("os.name");
+			if(osName != null && osName.toLowerCase().contains("windows")){
+				//windows
+				command = getExecCommandForWin();
+			}else{
+				//linux osx
+				command = getExecCommandForLinux();
+			}
+			Process p = Runtime.getRuntime().exec(command);
 			BufferedInputStream bufferedInputStream = new BufferedInputStream(p.getInputStream());
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(bufferedInputStream));
 			String readLine;
@@ -42,16 +53,66 @@ public class ReviewGenApplication{
 			while((readLine = bufferedReader.readLine()) != null){
 				result += readLine;
 			}
-			bufferedInputStream.close();
+			bufferedReader.close();
 			bufferedReader.close();
 			//输出结果.
+			System.out.println("reviewId : "+result);
 			result = "{\"result\":\""+result+"\"}";
 			this.sendAjaxResponse(result,response);
 		} catch (IOException e) {
 			e.printStackTrace();
+		}catch (Exception e){
+			e.printStackTrace();
 		}
 	}
 
+	/**
+	 * get command by os type
+	 *
+	 * @return
+	 */
+	private String[] getExecCommandForLinux() {
+		String linuxPath = this.getPathByType("LINUX");
+		String[] linuxCommand = new String[]{"python",linuxPath};
+		return linuxCommand;
+	}
+
+	/**
+	 * get command by os type
+	 *
+	 * @return
+	 */
+	private String[] getExecCommandForWin() {
+		String winPath = this.getPathByType("WIN");
+		String [] command = new String[]{"cmd","/c","start","python",winPath};
+		return command;
+	}
+
+	/**
+	 *	getPathByType
+	 *
+	 * @param osType
+	 * @return
+	 */
+	private String getPathByType(String osType){
+		InputStream in = ClassLoader.getSystemResourceAsStream("constants.properties");
+		Properties properties = new Properties();
+		String execPath = "";
+		try {
+			properties.load(in);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if(osType.equals("WIN")){
+			execPath = properties.getProperty("win.path");
+		}else{
+			execPath = properties.getProperty("linux.path");
+		}
+		if(execPath == null || execPath.trim().length() == 0){
+			throw new IllegalArgumentException(" exec-path must not be null !");
+		}
+		return execPath;
+	}
 	/**
 	 * 发送ajax结果
 	 *
