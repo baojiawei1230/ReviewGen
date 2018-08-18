@@ -1,6 +1,7 @@
 package com.alex.bao.ReviewGen.web;
 
 import com.alex.bao.ReviewGen.util.FileUploadUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
@@ -19,11 +20,15 @@ import java.io.IOException;
  * @create 2018-08-18 create by IntelliJ IDEA
  */
 @SpringBootApplication
-@RequestMapping("/picUpload")
+@RequestMapping("/pic/upload")
 @Controller
 public class PicUploadApplication {
 
-    private static final String PREFIX_PIC_PATH = "/opt/wwwroot/blog/image/";
+    @Value("${host_image}")
+    private String HOST_IMAGE;
+
+    @Value("${prefix_pic_path}")
+    private String PREFIX_PIC_PATH;
 
     public static void main(String[] args) {
         SpringApplication.run(PicUploadApplication.class, args);
@@ -40,7 +45,7 @@ public class PicUploadApplication {
      * @param multipartFile
      * @return
      */
-    @RequestMapping("/upload")
+    @RequestMapping("/result")
     public String upload(@RequestParam(value = "multipartFile") MultipartFile multipartFile , Model model){
         if(multipartFile != null){
             String originName = multipartFile.getOriginalFilename();
@@ -60,7 +65,7 @@ public class PicUploadApplication {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            String result = "http://justcoding.club/image/" + newName;
+            String result = HOST_IMAGE + newName;
 
             model.addAttribute("result",result);
             return "/result";
