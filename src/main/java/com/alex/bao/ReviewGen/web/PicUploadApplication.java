@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public class PicUploadApplication {
 
     @RequestMapping("/index")
     public String index(){
-        return "/index";
+        return "index";
     }
 
     /**
@@ -46,6 +47,7 @@ public class PicUploadApplication {
      * @return
      */
     @RequestMapping("/result")
+    @ResponseBody
     public String upload(@RequestParam(value = "multipartFile") MultipartFile multipartFile , Model model){
         if(multipartFile != null){
             String originName = multipartFile.getOriginalFilename();
@@ -53,25 +55,27 @@ public class PicUploadApplication {
             if(!FileUploadUtil.isAllow(FileUploadUtil.getSuffix(originName))){
                 return "上传的图片类型不符合,请重试!";
             }
+            System.out.println("文件类型校验完毕....");
             //新文件名称
             String newName = FileUploadUtil.picReame(originName);
             File file = new File(PREFIX_PIC_PATH);
             if(!file.exists()){
                 file.mkdirs();
             }
+            System.out.println("文件夹创建完毕....");
             file = new File(PREFIX_PIC_PATH + newName);
             try {
                 multipartFile.transferTo(file);
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("上传文件异常....");
             }
+            System.out.println("文件上传完毕....");
             String result = HOST_IMAGE + newName;
 
-            model.addAttribute("result",result);
-            return "/result";
+            return "{\"result\":\""+result+"\"}";
         }
-        model.addAttribute("result","");
-        return "result";
+        return "\"{\"result\":\"Null\"}";
     }
 
 

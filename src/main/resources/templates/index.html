@@ -1,9 +1,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <script type="text/javascript" src="../js/jquery-1.7.2.min.js"></script>
-    <title>ReviewId Generator</title>
-    <link rel="shortcut icon" type="image/x-icon" href="http://www.lvmama.com/favicon.ico"/>
+    <title>Picture Upload Path Generate</title>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery/jquery-1.7.2.min.js"></script>
+    <script type="text/javascript" src="http://malsup.github.io/jquery.form.js"></script>
+    <link rel="shortcut icon" type="image/png" href="http://justcoding.club/theme/default/logo.png"/>
 </head>
 <body>
 <div align="center">
@@ -11,8 +12,24 @@
         <span style="font-size: 10px;color: red">author : alex.bao</span><br/><br/>
         <h1> Picture Upload Path Generate </h1><br/>
         <input type="file" name="multipartFile" id="fileId"/>
-        <input type="submit" name="button" id="buttonId" value="上传"/>
+        <input type="button" name="button" id="buttonId" value="上传"/><br/><br/>
+        PATH : <input type="text" name="result" id="resultId" value="" style="width: 500px"/>
     </form>
 </div>
 </body>
+<script type="application/javascript">
+    $("#buttonId").click(function(){
+        $("#uploadForm").ajaxSubmit({
+            type:"post",
+            url:$("#uploadForm").attr("action"),
+            data:{
+                "multipartFile":$("#fileId").val(),
+            },
+            dataType:"json",
+            success: function(data){
+                $("#resultId").val(data.result);
+            }
+        })
+    })
+</script>
 </html>
